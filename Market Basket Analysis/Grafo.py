@@ -24,6 +24,7 @@ class Grafo:
     def show(self):
         for id, nodo in self.listaNodos.items():
             print(f"Nodo {id}: {nodo.producto.name}, Amigos: {[amigo.producto.name for amigo in nodo.get_friends()]}")
+            
 
     def graficar_grafo(self):
 

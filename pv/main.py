@@ -1,6 +1,10 @@
 # main.py
+import sys
+sys.path.append("c:/Users/mezam/OneDrive/Documentos/ESAN/2024-2/MATEMATICA DISCRETA/GRAFOS_MD/pv")
+from collections import deque
 from Grafo import Grafo
 from preguntas import *
+
 from conectNeo4j import obtener_grafo_desde_neo4j
 
 def llenarGrafo():
@@ -66,32 +70,68 @@ def llenarGrafo():
     grafo.agregar_amistad(13, 17) # Mia - Quinn
 
 
-
-
-
     # Conexiones del Grupo 2
     grafo.agregar_amistad(12, 12)  # Grace - Hannah
     grafo.agregar_amistad(7, 9)  # Grace - Ian
 
 
     return grafo
+    
+def llenarGrafoDB():
+    g = obtener_grafo_desde_neo4j()
+    return g
+
+def encontrarGrupoUsuario(grafo, user):
+    # Verificar si el usuario existe en el grafo
+    if user not in grafo.listaNodos:
+        print("El usuario no existe en el grafo.")
+        return None
+
+    # Inicializar una cola para la búsqueda BFS y un conjunto para los nodos visitados
+    cola = deque([grafo.listaNodos[user]])
+    visitados = set()
+    grupo = Grafo()  # Crear una nueva instancia de Grafo para el grupo
+
+    while cola:
+        nodo_actual = cola.popleft()
+
+        if nodo_actual not in visitados:
+            visitados.add(nodo_actual)
+            # Añadir el nodo al nuevo grafo
+            grupo.agregar_persona(nodo_actual.id, nodo_actual.nombre)
+
+            # Añadir todos los amigos no visitados a la cola
+            for amigo in nodo_actual.get_friends():
+                if amigo not in visitados:
+                    cola.append(amigo)
+                    # Añadir la amistad al nuevo grafo
+                    grupo.agregar_persona(amigo.id, amigo.nombre)
+                    grupo.agregar_amistad(nodo_actual.id, amigo.id)
+
+    return grupo
 
 def main():
     grafo = llenarGrafo()
     
 
 
-    grafo.show()
+    #grafo.show()
 
     #pregunta 001
-    print("Número de grupos por BFS : ", find_friend_groups_bfs(grafo))
-    print("Número de grupos por DFS : ", find_friend_groups_dfs(grafo))
+    #print("Número de grupos por BFS : ", find_friend_groups_bfs(grafo))
+    #print("Número de grupos por DFS : ", find_friend_groups_dfs(grafo))
 
     #pregunta 004
-    print(shortest_path(grafo, grafo.listaNodos[1].id,grafo.listaNodos[5].id))
+    #print(shortest_path(grafo, grafo.listaNodos[1].id,grafo.listaNodos[5].id))
 
-    #obtener_grafo_desde_neo4j().graficar_grafo()
-    grafo.graficar_grafo()
+    # g = obtener_grafo_desde_neo4j()
+    #g.graficar_grafo()
+    #g.show()
+    # grafo.show()
+    # grafo.graficar_grafo()
+
+    #print(recommend_friends(grafo))
+    print(shortest_path(grafo, 1,5))
     
 
 if __name__ == "__main__":

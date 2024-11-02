@@ -20,6 +20,7 @@ def dfs(nodo, visitados):
     for amigo in nodo.amigos:
         if amigo not in visitados:
             dfs(amigo, visitados)
+    return visitados
             
 
 
@@ -32,29 +33,33 @@ def bfs(nodo, visitados):
             if amigo not in visitados:
                 visitados.add(amigo)
                 cola.append(amigo)
+    return visitados
 
 def find_friend_groups_dfs(grafo):
     visitados = set()
-    grupos = 0
-
+    num = 0
+    grupos = []
     # Itera sobre las claves (nodos) del diccionario de nodos
     for nodo in grafo.listaNodos.values():
         if nodo not in visitados:
-            dfs(nodo, visitados)
-            grupos += 1
-    return grupos
+            g = dfs(nodo, visitados)
+            grupos.append(g)
+            num += 1
+    return num, grupos
 
 
 def find_friend_groups_bfs(grafo):
     visitados = set()
-    grupos = 0
+    num = 0
+    grupos = []
 
     # Itera sobre las claves (nodos) del diccionario de nodos
     for nodo in grafo.listaNodos.values():
         if nodo not in visitados:
-            bfs(nodo, visitados)
-            grupos += 1
-    return grupos
+            g = bfs(nodo, visitados)
+            grupos.append(g)
+            num += 1
+    return num, grupos
 
 ### pregunta 002
 def recommend_friends(grafo):
@@ -76,7 +81,7 @@ def recommend_friends(grafo):
         # Almacenamos los recomendados para la persona actual
         recomendaciones[nodo.id] = list(recomendados)
 
-    return recomendaciones
+    return  recomendaciones
 
 
 ### pregunta 003
@@ -91,7 +96,7 @@ def most_popular_friend(grafo):
             popular = nodo
 
     if popular:
-        return popular.nombre, max_amigos
+        return popular.nombre, max_amigos,popular.amigos
     else:
         return None, 0  # Si no hay nodos en el grafo
 
@@ -130,3 +135,34 @@ def shortest_path(grafo, person1_id, person2_id):
 
     # Si no hay camino, retornar None
     return None
+
+
+# pregunta 005
+def has_cycle(graph):
+    def dfs(nodo, parent, visitados, camino):
+        visitados.add(nodo)
+        camino.append(nodo)
+
+        for amigo in nodo.get_friends():
+            if amigo not in visitados:
+                dfs(amigo, nodo, visitados, camino)
+            elif amigo != parent and camino.index(amigo) < len(camino) - 1:
+                # Hemos encontrado un ciclo, recoger los nodos involucrados
+                ciclo = []
+                index = camino.index(amigo)  # Encontrar el inicio del ciclo en el camino
+                for i in range(index, len(camino)):
+                    ciclo.append(camino[i].nombre)
+                ciclo.append(amigo.nombre)  # Añadir el nodo inicial al final para completar el ciclo
+                if ciclo not in ciclos:  # Asegurarnos de que el ciclo sea único
+                    ciclos.append(ciclo)
+
+        camino.pop()
+        visitados.remove(nodo)  # Remover el nodo de visitados para permitir encontrar más ciclos
+
+    ciclos = []
+
+    for nodo in graph.listaNodos.values():
+        dfs(nodo, None, set(), [])  # Llamada inicial a DFS con un nuevo conjunto de nodos visitados
+
+    return ciclos if ciclos else None
+

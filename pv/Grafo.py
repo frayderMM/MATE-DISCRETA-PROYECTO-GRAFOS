@@ -18,7 +18,9 @@ class Grafo:
             self.listaNodos[id2].anadirAmigos(self.listaNodos[id1])  
 
     def show(self):
-        print(self.listaNodos)
+        for id, nodo in self.listaNodos.items():
+            print(f"NODO: {id}  Amigos : {nodo.amigos}")
+
 
 
     # Nueva función para graficar el grafo
